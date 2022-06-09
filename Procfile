@@ -1,1 +1,1 @@
-web:
+web: cargo run
