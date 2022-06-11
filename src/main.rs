@@ -1,6 +1,7 @@
 use aws_types::credentials::SharedCredentialsProvider;
 
 mod public;
+mod cors;
 
 #[rocket::get("/")]
 fn index() -> &'static str {
@@ -25,6 +26,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let _rocket = rocket::build()
         .mount("/v1", rocket::routes![index])
         .mount("/v1/public/tasker", public::tasker::routes())
+        .attach(cors::CORS)
         .manage(client)
         .launch()
         .await?;
