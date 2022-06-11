@@ -1,9 +1,10 @@
-use rocket::{Build, Data, Orbit, Request, Response, Rocket};
+use rocket::{Request, Response};
 use rocket::http::Header;
 use rocket::fairing::{Fairing, Info, Kind};
 
 pub struct CORS;
 
+#[rocket::async_trait]
 impl Fairing for CORS {
     fn info(&self) -> Info {
         Info {
@@ -18,4 +19,4 @@ impl Fairing for CORS {
         response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
-};
+}
