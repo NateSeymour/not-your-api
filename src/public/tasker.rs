@@ -6,7 +6,7 @@ pub struct CreateTaskRB<'r> {
     description: &'r str,
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct Task {
     id: String,
     description: String,
@@ -19,21 +19,21 @@ pub struct TaskList {
 }
 
 #[rocket::post("/task", data = "<task>")]
-pub async fn create_task(task: Json<CreateTaskRB<'_>>, db_client: &rocket::State<aws_sdk_dynamodb::Client>) -> Result<(), ()> {
+pub async fn create_task(task: Json<CreateTaskRB<'_>>, db_client: &rocket::State<aws_sdk_dynamodb::Client>) -> Json<Task> {
     let new_task = Task {
         id: Uuid::new_v4().to_string(),
         description: task.description.to_string(),
         completed: false,
     };
 
-    let item = serde_dynamo::to_item(new_task).unwrap();
+    let item = serde_dynamo::to_item(new_task.clone()).unwrap();
 
     db_client.put_item()
         .table_name("NYS_tasker")
         .set_item(Some(item))
         .send().await;
 
-    Ok(())
+    Json(new_task)
 }
 
 #[rocket::get("/task/all")]
